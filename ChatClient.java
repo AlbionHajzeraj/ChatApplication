@@ -17,10 +17,14 @@ public class ChatClient extends JFrame {
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+
+
         JLabel titleLabel = new JLabel("Chat App", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         titleLabel.setForeground(Color.BLACK);
         add(titleLabel, BorderLayout.NORTH);
+
+
 
         chatPanel = new JPanel();
         chatPanel.setLayout(new BoxLayout(chatPanel, BoxLayout.Y_AXIS));
@@ -61,7 +65,7 @@ public class ChatClient extends JFrame {
         add(inputPanel, BorderLayout.SOUTH);
 
 
-        // Send message when Enter is pressed
+
         textField.addActionListener(e -> {
             if (out != null) {
                 String msg = "Client: " + textField.getText();
@@ -95,7 +99,7 @@ public class ChatClient extends JFrame {
         add(themeButton, BorderLayout.NORTH);
 
 
-        // Connect to server in a separate thread
+
         new Thread(() -> {
             try {
                 Socket socket = new Socket("localhost", 1234);
