@@ -9,6 +9,8 @@ public class ChatClient extends JFrame {
     private JTextField textField;
     private PrintWriter out;
     private BufferedReader in;
+    private JPanel chatPanel;
+
 
     public ChatClient() {
         setTitle("Client");
@@ -20,21 +22,17 @@ public class ChatClient extends JFrame {
         titleLabel.setForeground(Color.BLACK);
         add(titleLabel, BorderLayout.NORTH);
 
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(textArea);
+        chatPanel = new JPanel();
+        chatPanel.setLayout(new BoxLayout(chatPanel, BoxLayout.Y_AXIS));
+        chatPanel.setBackground(Color.WHITE);
+
+        JScrollPane scrollPane = new JScrollPane(chatPanel);
         scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(10, 0));
         scrollPane.getVerticalScrollBar().setBackground(Color.DARK_GRAY);
         scrollPane.getVerticalScrollBar().setForeground(Color.WHITE);
         add(scrollPane, BorderLayout.CENTER);
 
 
-
-        //dekorime te textarea
-
-        textArea.setBackground(Color.WHITE);
-        textArea.setForeground(Color.BLACK);
-        textArea.setFont(new Font("Monospaced", Font.BOLD, 14));
 
 
 
@@ -52,7 +50,7 @@ public class ChatClient extends JFrame {
         JButton sendButton = new JButton("Send");
         sendButton.addActionListener(e -> {
             String msg = "Server: " + textField.getText();
-            textArea.append(msg + "\n");
+            addMessage(msg, false);
             out.println(msg);
             textField.setText("");
         });
@@ -67,19 +65,41 @@ public class ChatClient extends JFrame {
         textField.addActionListener(e -> {
             if (out != null) {
                 String msg = "Client: " + textField.getText();
-                textArea.append(msg + "\n");
-                out.println(msg); // send to server
+                addMessage(msg, false);
+                out.println(msg);
                 textField.setText("");
             }
         });
 
         setVisible(true);
 
+        JButton themeButton = new JButton("Toggle Theme");
+        themeButton.addActionListener(e -> {
+            if (chatPanel.getBackground() == Color.WHITE) {
+                chatPanel.setBackground(Color.DARK_GRAY);
+                for (Component c : chatPanel.getComponents()) {
+                    if (c instanceof JLabel) {
+                        ((JLabel) c).setForeground(Color.WHITE);
+                    }
+                }
+            } else {
+                chatPanel.setBackground(Color.WHITE);
+                for (Component c : chatPanel.getComponents()) {
+                    if (c instanceof JLabel) {
+                        ((JLabel) c).setForeground(Color.BLACK);
+                    }
+                }
+            }
+        });
+
+        add(themeButton, BorderLayout.NORTH);
+
+
         // Connect to server in a separate thread
         new Thread(() -> {
             try {
                 Socket socket = new Socket("localhost", 1234);
-                textArea.append("Connected to server!\n");
+                addMessage("Connected!", true);
 
                 out = new PrintWriter(socket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -87,7 +107,7 @@ public class ChatClient extends JFrame {
                 // Continuously read messages from server
                 String line;
                 while ((line = in.readLine()) != null) {
-                    textArea.append(line + "\n");
+                    addMessage(line, false);
                 }
 
             } catch (IOException ex) {
@@ -95,6 +115,26 @@ public class ChatClient extends JFrame {
                 ex.printStackTrace();
             }
         }).start();
+    }
+
+    private void addMessage(String message, boolean isServer) {
+        JLabel msgLabel = new JLabel(message);
+        msgLabel.setOpaque(true);
+        msgLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
+        if (isServer) {
+            msgLabel.setBackground(new Color(200, 230, 255)); // light blue
+            msgLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        } else {
+            msgLabel.setBackground(new Color(220, 220, 220)); // gray
+            msgLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        }
+
+        msgLabel.setFont(new Font("Monospaced", Font.PLAIN, 14));
+
+        chatPanel.add(msgLabel);
+        chatPanel.revalidate();
+        chatPanel.repaint();
     }
 
     public static void main(String[] args) {
