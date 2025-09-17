@@ -17,14 +17,47 @@ public class ChatClient extends JFrame {
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.WHITE);
 
         JLabel titleLabel = new JLabel("Chat App", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         titleLabel.setForeground(Color.BLACK);
-        add(titleLabel, BorderLayout.NORTH);
 
+        topPanel.add(titleLabel, BorderLayout.CENTER);
 
+        JButton themeButton = new JButton("\uD83C\uDF19");
+        themeButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        themeButton.setPreferredSize(new Dimension(40, 30));
+        themeButton.setFocusPainted(false);
+        themeButton.setContentAreaFilled(false);
+        themeButton.setBorderPainted(false);
+
+        themeButton.addActionListener(e -> {
+            if (chatPanel.getBackground() == Color.WHITE) {
+                chatPanel.setBackground(Color.DARK_GRAY);
+                topPanel.setBackground(Color.DARK_GRAY);
+                titleLabel.setForeground(Color.WHITE);
+                for (Component c : chatPanel.getComponents()) {
+                    if (c instanceof JLabel) {
+                        ((JLabel) c).setForeground(Color.WHITE);
+                    }
+                }
+            } else {
+                chatPanel.setBackground(Color.WHITE);
+                topPanel.setBackground(Color.WHITE);
+                titleLabel.setForeground(Color.BLACK);
+                for (Component c : chatPanel.getComponents()) {
+                    if (c instanceof JLabel) {
+                        ((JLabel) c).setForeground(Color.BLACK);
+                    }
+                }
+            }
+        });
+
+        topPanel.add(themeButton, BorderLayout.WEST);
+
+        add(topPanel, BorderLayout.NORTH);
 
         chatPanel = new JPanel();
         chatPanel.setLayout(new BoxLayout(chatPanel, BoxLayout.Y_AXIS));
@@ -69,35 +102,13 @@ public class ChatClient extends JFrame {
         textField.addActionListener(e -> {
             if (out != null) {
                 String msg = "Client: " + textField.getText();
-                addMessage(msg, false);
+                addMessage(msg, true);
                 out.println(msg);
                 textField.setText("");
             }
         });
 
         setVisible(true);
-
-        JButton themeButton = new JButton("Toggle Theme");
-        themeButton.addActionListener(e -> {
-            if (chatPanel.getBackground() == Color.WHITE) {
-                chatPanel.setBackground(Color.DARK_GRAY);
-                for (Component c : chatPanel.getComponents()) {
-                    if (c instanceof JLabel) {
-                        ((JLabel) c).setForeground(Color.WHITE);
-                    }
-                }
-            } else {
-                chatPanel.setBackground(Color.WHITE);
-                for (Component c : chatPanel.getComponents()) {
-                    if (c instanceof JLabel) {
-                        ((JLabel) c).setForeground(Color.BLACK);
-                    }
-                }
-            }
-        });
-
-        add(themeButton, BorderLayout.NORTH);
-
 
 
         new Thread(() -> {
@@ -145,4 +156,3 @@ public class ChatClient extends JFrame {
         SwingUtilities.invokeLater(ChatClient::new);
     }
 }
-
